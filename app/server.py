@@ -104,16 +104,34 @@ async def bug_analyze(request):
     form = await request.form()
     img = await form["file"].read()
     img = open_image(BytesIO(img))
-    prediction = learn.predict(img)[0]
+    prediction,_,probs = learn.predict(img)
     all_insect = ['ant','assassin','bed-bug','bee','beetle','butterfly','catterpillar',\
     'cicadomorpha-bug','cockroach','crickets','dragonfly','flies','lacewing',\
     'leaf-footed-squash-bug','plant-bug','planthopper-bug','seed-bug',\
     'stink-shield-bug']
 
     if str(prediction) in all_insect:
-        return JSONResponse({'result':1})
+        if max(probs.tolist()) >= 0.7:
+            if str(prediction)=='bee':
+                return JSONResponse({'result':2})
+            elif str(prediction)=='beetle':
+                return JSONResponse({'result':3})
+            elif str(prediction)=='butterfly':
+                return JSONResponse({'result':4})
+            elif str(prediction)=='catterpillar':
+                return JSONResponse({'result':5})
+            elif str(prediction)=='cockroach':
+                return JSONResponse({'result':6})
+            elif str(prediction)=='dragonfly':
+                return JSONResponse({'result':7})
+            elif str(prediction)=='flies':
+                return JSONResponse({'result':8})
+            else:
+                return JSONResponse({'result':99})
+        
     else:
         return JSONResponse({'result':0})
+    
 
 
 if __name__ == '__main__':
